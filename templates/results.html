@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Prediction Results</h1>
+    <p class="small">
+      The platform estimates likely overall course outcome and academic risk status based on student learning indicators.
+    </p>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:18px;">
+  <form method="get" class="filter-form">
+    <input type="text" name="name" placeholder="Search by student name or ID" value="{{ name_query or '' }}">
+
+    <select name="risk">
+      <option value="">All risk levels</option>
+      <option value="Low" {% if risk_filter == "Low" %}selected{% endif %}>Low</option>
+      <option value="Medium" {% if risk_filter == "Medium" %}selected{% endif %}>Medium</option>
+      <option value="High" {% if risk_filter == "High" %}selected{% endif %}>High</option>
+    </select>
+
+    <select name="prediction">
+      <option value="">All predictions</option>
+      <option value="Pass" {% if prediction_filter == "Pass" %}selected{% endif %}>Pass</option>
+      <option value="Fail" {% if prediction_filter == "Fail" %}selected{% endif %}>Fail</option>
+    </select>
+
+    <button class="btn" type="submit">Apply Filters</button>
+    <a class="btn btn-secondary" href="{{ url_for('results') }}">Reset</a>
+  </form>
+</div>
+
+<div class="card-grid">
+  <div class="card stat-card"><span>Total students</span><strong>{{ summary.total }}</strong></div>
+  <div class="card stat-card"><span>Predicted pass</span><strong>{{ summary.pass_count }}</strong></div>
+  <div class="card stat-card"><span>Predicted fail</span><strong>{{ summary.fail_count }}</strong></div>
+  <div class="card stat-card"><span>Low risk</span><strong>{{ summary.low_risk }}</strong></div>
+  <div class="card stat-card"><span>Medium risk</span><strong>{{ summary.medium_risk }}</strong></div>
+  <div class="card stat-card"><span>High risk</span><strong>{{ summary.high_risk }}</strong></div>
+</div>
+
+<div class="table-card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Student ID</th>
+          <th>Student Name</th>
+          <th>Prediction</th>
+          <th>Fail Probability</th>
+          <th>Confidence</th>
+          <th>Risk Level</th>
+          <th>Recommendation</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for row in records %}
+        <tr>
+          <td>{{ row.student_id }}</td>
+          <td>{{ row.student_name }}</td>
+          <td>{{ row.prediction }}</td>
+          <td>{{ row.fail_probability }}</td>
+          <td>{{ row.confidence }}</td>
+          <td><span class="badge badge-{{ row.risk_level|lower }}">{{ row.risk_level }}</span></td>
+          <td>{{ row.recommendation }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

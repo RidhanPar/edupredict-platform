@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="hero">
+  <h1>EduPredict</h1>
+  <p>
+    A web based student performance prediction and early warning platform that helps academic staff identify students at risk of poor overall course outcomes using educational data and supervised learning.
+  </p>
+  <div class="hero-actions">
+    <a class="btn" href="{{ url_for('upload') }}">Upload Dataset</a>
+    <a class="btn btn-secondary" href="{{ url_for('train') }}">Train Models</a>
+  </div>
+</div>
+
+<div class="card-grid">
+  <div class="card"><h3>Core function</h3><p>Predict overall course outcome and academic risk using educational data.</p></div>
+  <div class="card"><h3>Added value</h3><p>Show risk levels, confidence, recommendations, and feature based explanations.</p></div>
+  <div class="card"><h3>Users</h3><p>Lecturers, advisors, coordinators, and academic administrators.</p></div>
+</div>
+
+{% if metrics %}
+<h2 style="margin-top:24px;">Current best model</h2>
+<div class="card-grid">
+  <div class="card stat-card"><span>Model</span><strong>{{ metrics.best_model }}</strong></div>
+  <div class="card stat-card"><span>Accuracy</span><strong>{{ metrics.accuracy }}</strong></div>
+  <div class="card stat-card"><span>F1 score</span><strong>{{ metrics.f1 }}</strong></div>
+  <div class="card stat-card"><span>ROC AUC</span><strong>{{ metrics.roc_auc }}</strong></div>
+</div>
+{% else %}
+<p class="small" style="margin-top:20px;">No trained model yet. Upload a dataset and run training.</p>
+{% endif %}
+{% endblock %}

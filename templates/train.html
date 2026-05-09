@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Train and Evaluate Models</h1>
+    <p class="small">The platform compares four supervised learning algorithms and automatically selects the best model for deployment.</p>
+  </div>
+  <form method="post">
+    <button class="btn" type="submit">Train Models</button>
+  </form>
+</div>
+
+{% if metrics %}
+<h2>Best Model Summary</h2>
+<div class="card-grid">
+  <div class="card stat-card"><span>Best model</span><strong>{{ metrics.best_model }}</strong></div>
+  <div class="card stat-card"><span>Accuracy</span><strong>{{ metrics.accuracy }}</strong></div>
+  <div class="card stat-card"><span>Precision</span><strong>{{ metrics.precision }}</strong></div>
+  <div class="card stat-card"><span>Recall</span><strong>{{ metrics.recall }}</strong></div>
+  <div class="card stat-card"><span>F1 score</span><strong>{{ metrics.f1 }}</strong></div>
+  <div class="card stat-card"><span>ROC AUC</span><strong>{{ metrics.roc_auc }}</strong></div>
+</div>
+
+<div class="card" style="margin-top: 18px;">
+  <h3>Confusion Matrix</h3>
+  <p>{{ metrics.confusion_matrix }}</p>
+</div>
+{% endif %}
+
+{% if comparison %}
+<div class="table-card">
+  <h2>Model Comparison</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>Accuracy</th>
+          <th>Precision</th>
+          <th>Recall</th>
+          <th>F1 Score</th>
+          <th>ROC AUC</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in comparison %}
+        <tr>
+          <td>{{ row.model }}</td>
+          <td>{{ row.accuracy }}</td>
+          <td>{{ row.precision }}</td>
+          <td>{{ row.recall }}</td>
+          <td>{{ row.f1 }}</td>
+          <td>{{ row.roc_auc }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+{% if importances %}
+<div class="table-card">
+  <h2>Feature Importance</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Feature</th><th>Importance</th></tr></thead>
+      <tbody>
+        {% for k, v in importances.items() %}
+        <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
