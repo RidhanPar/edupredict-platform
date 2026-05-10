@@ -15,19 +15,31 @@ DATA_DIR = BASE_DIR / "data"
 RAW_DIR = DATA_DIR / "raw"
 MODELS_DIR = BASE_DIR / "models"
 MODEL_PATH = MODELS_DIR / "best_model.pkl"
-UPLOAD_PATH = RAW_DIR / "uploaded.csv"
+
+TRAIN_UPLOAD_PATH = RAW_DIR / "training_dataset.csv"
+PREDICT_UPLOAD_PATH = RAW_DIR / "prediction_dataset.csv"
 
 app = Flask(__name__)
 app.secret_key = "edupredict-secret"
 
 
-def get_uploaded_df(require_target: bool = True):
-    if not UPLOAD_PATH.exists():
-        return None, "No dataset uploaded yet."
-    df = pd.read_csv(UPLOAD_PATH)
+def get_training_df(require_target: bool = True):
+    if not TRAIN_UPLOAD_PATH.exists():
+        return None, "No training dataset uploaded yet."
+    df = pd.read_csv(TRAIN_UPLOAD_PATH)
     ok, missing = validate_columns(df, require_target=require_target)
     if not ok:
-        return None, f"Missing required columns: {', '.join(missing)}"
+        return None, f"Missing required columns in training dataset: {', '.join(missing)}"
+    return df, None
+
+
+def get_prediction_df():
+    if not PREDICT_UPLOAD_PATH.exists():
+        return None, "No prediction dataset uploaded yet."
+    df = pd.read_csv(PREDICT_UPLOAD_PATH)
+    ok, missing = validate_columns(df, require_target=False)
+    if not ok:
+        return None, f"Missing required columns in prediction dataset: {', '.join(missing)}"
     return df, None
 
 
@@ -38,27 +50,64 @@ def home():
     return render_template("home.html", metrics=metrics, comparison=comparison)
 
 
-@app.route("/upload", methods=["GET", "POST"])
-def upload():
+@app.route("/upload-train", methods=["GET", "POST"])
+def upload_train():
     preview = None
     columns = None
+
     if request.method == "POST":
         file = request.files.get("file")
         if not file or not file.filename.endswith(".csv"):
-            flash("Please upload a valid CSV file.", "danger")
-            return redirect(url_for("upload"))
-        RAW_DIR.mkdir(parents=True, exist_ok=True)
-        file.save(UPLOAD_PATH)
-        flash("Dataset uploaded successfully.", "success")
-        return redirect(url_for("upload"))
+            flash("Please upload a valid training CSV file.", "danger")
+            return redirect(url_for("upload_train"))
 
-    if UPLOAD_PATH.exists():
-        df = pd.read_csv(UPLOAD_PATH)
+        RAW_DIR.mkdir(parents=True, exist_ok=True)
+        file.save(TRAIN_UPLOAD_PATH)
+        flash("Training dataset uploaded successfully.", "success")
+        return redirect(url_for("upload_train"))
+
+    if TRAIN_UPLOAD_PATH.exists():
+        df = pd.read_csv(TRAIN_UPLOAD_PATH)
         preview = df.head(10).to_dict(orient="records")
         columns = list(df.columns)
 
     required = DISPLAY_COLUMNS + FEATURE_COLUMNS + [TARGET_COLUMN]
-    return render_template("upload.html", preview=preview, columns=columns, required=required)
+    return render_template(
+        "upload_train.html",
+        preview=preview,
+        columns=columns,
+        required=required
+    )
+
+
+@app.route("/upload-predict", methods=["GET", "POST"])
+def upload_predict():
+    preview = None
+    columns = None
+
+    if request.method == "POST":
+        file = request.files.get("file")
+        if not file or not file.filename.endswith(".csv"):
+            flash("Please upload a valid prediction CSV file.", "danger")
+            return redirect(url_for("upload_predict"))
+
+        RAW_DIR.mkdir(parents=True, exist_ok=True)
+        file.save(PREDICT_UPLOAD_PATH)
+        flash("Prediction dataset uploaded successfully.", "success")
+        return redirect(url_for("upload_predict"))
+
+    if PREDICT_UPLOAD_PATH.exists():
+        df = pd.read_csv(PREDICT_UPLOAD_PATH)
+        preview = df.head(10).to_dict(orient="records")
+        columns = list(df.columns)
+
+    required = DISPLAY_COLUMNS + FEATURE_COLUMNS
+    return render_template(
+        "upload_predict.html",
+        preview=preview,
+        columns=columns,
+        required=required
+    )
 
 
 @app.route("/train", methods=["GET", "POST"])
@@ -68,10 +117,10 @@ def train():
     comparison = load_model_comparison(str(MODELS_DIR))
 
     if request.method == "POST":
-        df, err = get_uploaded_df(require_target=True)
+        df, err = get_training_df(require_target=True)
         if err:
             flash(err, "danger")
-            return redirect(url_for("upload"))
+            return redirect(url_for("upload_train"))
 
         artifacts = train_and_select_best(df, str(MODELS_DIR))
         metrics = {"best_model": artifacts.model_name, **artifacts.metrics}
@@ -93,10 +142,10 @@ def results():
         flash("Train the model first.", "warning")
         return redirect(url_for("train"))
 
-    df, err = get_uploaded_df(require_target=False)
+    df, err = get_prediction_df()
     if err:
         flash(err, "danger")
-        return redirect(url_for("upload"))
+        return redirect(url_for("upload_predict"))
 
     res = predict_dataframe(df, str(MODEL_PATH))
 

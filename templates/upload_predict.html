@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Upload Prediction Dataset</h1>
+    <p class="small">
+      Upload a new student dataset for prediction. This file should not contain the target column.
+    </p>
+  </div>
+</div>
+
+<div class="card">
+  <p><strong>Required columns:</strong> {{ required|join(', ') }}</p>
+  <form method="post" enctype="multipart/form-data" class="upload-form">
+    <input type="file" name="file" accept=".csv" required>
+    <button class="btn" type="submit">Upload Prediction CSV</button>
+  </form>
+</div>
+
+{% if preview %}
+<div class="table-card">
+  <h2>Preview</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>{% for c in columns %}<th>{{ c }}</th>{% endfor %}</tr>
+      </thead>
+      <tbody>
+        {% for row in preview %}
+        <tr>{% for c in columns %}<td>{{ row[c] }}</td>{% endfor %}</tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

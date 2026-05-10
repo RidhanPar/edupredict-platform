@@ -3,18 +3,28 @@
 <div class="hero">
   <h1>EduPredict</h1>
   <p>
-    A web based student performance prediction and early warning platform that helps academic staff identify students at risk of poor overall course outcomes using educational data and supervised learning.
+    A web based student performance prediction and early warning platform that supports both
+    model training and prediction on new student datasets.
   </p>
   <div class="hero-actions">
-    <a class="btn" href="{{ url_for('upload') }}">Upload Dataset</a>
-    <a class="btn btn-secondary" href="{{ url_for('train') }}">Train Models</a>
+    <a class="btn" href="{{ url_for('upload_train') }}">Upload Training Dataset</a>
+    <a class="btn btn-secondary" href="{{ url_for('upload_predict') }}">Upload Prediction Dataset</a>
   </div>
 </div>
 
 <div class="card-grid">
-  <div class="card"><h3>Core function</h3><p>Predict overall course outcome and academic risk using educational data.</p></div>
-  <div class="card"><h3>Added value</h3><p>Show risk levels, confidence, recommendations, and feature based explanations.</p></div>
-  <div class="card"><h3>Users</h3><p>Lecturers, advisors, coordinators, and academic administrators.</p></div>
+  <div class="card">
+    <h3>Training workflow</h3>
+    <p>Upload a labeled educational dataset, compare four supervised learning models, and save the best one.</p>
+  </div>
+  <div class="card">
+    <h3>Prediction workflow</h3>
+    <p>Upload a new student dataset without target labels and generate predictions using the saved best model.</p>
+  </div>
+  <div class="card">
+    <h3>Users</h3>
+    <p>Lecturers, advisors, coordinators, and academic administrators.</p>
+  </div>
 </div>
 
 {% if metrics %}
@@ -26,6 +36,6 @@
   <div class="card stat-card"><span>ROC AUC</span><strong>{{ metrics.roc_auc }}</strong></div>
 </div>
 {% else %}
-<p class="small" style="margin-top:20px;">No trained model yet. Upload a dataset and run training.</p>
+<p class="small" style="margin-top:20px;">No trained model yet. Upload a training dataset and run evaluation.</p>
 {% endif %}
 {% endblock %}
