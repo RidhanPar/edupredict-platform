@@ -1,26 +1,20 @@
+id="m95f1f"
 {% extends 'base.html' %}
+{% block title %}EduPredict | Compare Results{% endblock %}
 {% block content %}
 <div class="page-header">
   <div>
     <h1>Prediction vs Actual Results</h1>
     <p class="small">
-      This page compares platform predictions on unseen student records with the actual known outcomes.
+      Operational validation of platform predictions against actual unseen student outcomes.
     </p>
   </div>
 </div>
 
-<div class="card" style="margin-bottom:18px;">
-  <h3>Workflow</h3>
-  <p class="small">
-    Make sure you have already completed:
-    1. Upload Training Dataset
-    2. Train & Evaluate
-    3. Upload Prediction Dataset
-    4. Upload Actual Results Dataset
-  </p>
+<div class="card">
   <div class="hero-actions">
     <a class="btn btn-secondary" href="{{ url_for('upload_actual') }}">Upload Actual Results</a>
-    <a class="btn btn-secondary" href="{{ url_for('results') }}">View Prediction Results</a>
+    <a class="btn btn-secondary" href="{{ url_for('results') }}">View Predictions</a>
     <form method="post" action="{{ url_for('recheck_comparison') }}" style="display:inline;">
       <button class="btn" type="submit">Re-evaluate Current Comparison</button>
     </form>
@@ -37,14 +31,14 @@
   <div class="card stat-card"><span>Overall Score</span><strong>{{ metrics.overall_score }}%</strong></div>
 </div>
 
-<div class="card" style="margin-top:18px;">
+<div class="card section-spacer">
   <h3>Confusion Matrix</h3>
   <p>{{ metrics.confusion_matrix }}</p>
 </div>
 {% endif %}
 
 {% if records %}
-<div class="table-card" style="margin-top:18px;">
+<div class="table-card">
   <h2>Detailed Comparison</h2>
   <div class="table-wrap">
     <table>
@@ -60,7 +54,7 @@
         </tr>
       </thead>
       <tbody>
-      {% for row in records %}
+        {% for row in records %}
         <tr>
           <td>{{ row.student_id }}</td>
           <td>{{ row.student_name }}</td>
@@ -70,24 +64,10 @@
           <td>{{ row.fail_probability }}</td>
           <td>{{ row.comparison }}</td>
         </tr>
-      {% endfor %}
+        {% endfor %}
       </tbody>
     </table>
   </div>
-</div>
-
-<div class="card" style="margin-top:18px;">
-  <h3>Next Step</h3>
-  <div class="hero-actions">
-    <a class="btn btn-secondary" href="{{ url_for('explain') }}">View Explanation</a>
-    <a class="btn" href="{{ url_for('home') }}">Back to Home</a>
-  </div>
-</div>
-{% else %}
-<div class="card" style="margin-top:18px;">
-  <p class="small">
-    No comparison results available yet. Upload the actual results file and prediction dataset first.
-  </p>
 </div>
 {% endif %}
 {% endblock %}
