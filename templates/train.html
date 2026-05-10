@@ -1,17 +1,24 @@
 {% extends 'base.html' %}
 {% block content %}
+
 <div class="page-header">
   <div>
     <h1>Train and Evaluate Models</h1>
-    <p class="small">The platform compares four supervised learning algorithms and automatically selects the best model for deployment.</p>
+    <p class="small">
+      The platform compares four supervised learning algorithms and automatically selects
+      the best model for deployment.
+    </p>
+  </div>
 </div>
+
 <div class="card" style="margin-top: 18px;">
   <form method="post">
     <button class="btn" type="submit">Train Models</button>
   </form>
 </div>
+
 {% if metrics %}
-<h2>Best Model Summary</h2>
+<h2 style="margin-top: 24px;">Best Model Summary</h2>
 <div class="card-grid">
   <div class="card stat-card"><span>Best model</span><strong>{{ metrics.best_model }}</strong></div>
   <div class="card stat-card"><span>Accuracy</span><strong>{{ metrics.accuracy }}</strong></div>
@@ -26,17 +33,9 @@
   <p>{{ metrics.confusion_matrix }}</p>
 </div>
 {% endif %}
-<div class="card" style="margin-top:18px;">
-  <h3>Next Step</h3>
-  <div class="hero-actions">
-    <a class="btn" href="{{ url_for('upload_predict') }}">Upload Prediction Dataset</a>
-    <a class="btn btn-secondary" href="{{ url_for('explain') }}">View Explanation</a>
-    <a class="btn btn-secondary" href="{{ url_for('home') }}">Back to Home</a>
-  </div>
-</div>
 
 {% if comparison %}
-<div class="table-card">
+<div class="table-card" style="margin-top: 18px;">
   <h2>Model Comparison</h2>
   <div class="table-wrap">
     <table>
@@ -68,25 +67,36 @@
 {% endif %}
 
 {% if importances %}
-<div class="table-card">
+<div class="table-card" style="margin-top: 18px;">
   <h2>Feature Importance</h2>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>Feature</th><th>Importance</th></tr></thead>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Importance</th>
+        </tr>
+      </thead>
       <tbody>
         {% for k, v in importances.items() %}
-        <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
+        <tr>
+          <td>{{ k }}</td>
+          <td>{{ v }}</td>
+        </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 </div>
+{% endif %}
+
 <div class="card" style="margin-top:18px;">
   <h3>Next Step</h3>
   <div class="hero-actions">
-    <a class="btn btn-secondary" href="{{ url_for('upload_predict') }}">Upload Prediction Dataset</a>
-    <a class="btn" href="{{ url_for('explain') }}">View Explanation</a>
+    <a class="btn" href="{{ url_for('upload_predict') }}">Upload Prediction Dataset</a>
+    <a class="btn btn-secondary" href="{{ url_for('explain') }}">View Explanation</a>
+    <a class="btn btn-secondary" href="{{ url_for('home') }}">Back to Home</a>
   </div>
 </div>
-{% endif %}
+
 {% endblock %}
