@@ -4,10 +4,11 @@
   <div>
     <h1>Prediction Results</h1>
     <p class="small">
-  These predictions were generated using the previously trained and saved best model on a new uploaded student dataset.
+  These results were generated using the previously trained and saved best model on a newly uploaded prediction dataset.
 </p>
   </div>
 </div>
+
 
 <div class="card" style="margin-bottom:18px;">
   <form method="get" class="filter-form">
@@ -29,6 +30,15 @@
     <button class="btn" type="submit">Apply Filters</button>
     <a class="btn btn-secondary" href="{{ url_for('results') }}">Reset</a>
   </form>
+</div>
+
+<div class="card" style="margin-top:18px;">
+  <h3>Next Step</h3>
+  <div class="hero-actions">
+    <a class="btn" href="{{ url_for('upload_actual') }}">Upload Actual Results</a>
+    <a class="btn btn-secondary" href="{{ url_for('compare') }}">Compare with Actual Results</a>
+    <a class="btn btn-secondary" href="{{ url_for('home') }}">Back to Home</a>
+  </div>
 </div>
 
 <div class="card-grid">
@@ -68,6 +78,13 @@
       {% endfor %}
       </tbody>
     </table>
+  </div>
+</div>
+<div class="card" style="margin-top:18px;">
+  <h3>Next Step</h3>
+  <div class="hero-actions">
+    <a class="btn btn-secondary" href="{{ url_for('upload_actual') }}">Upload Actual Results</a>
+    <a class="btn" href="{{ url_for('compare') }}">Compare with Actual Results</a>
   </div>
 </div>
 {% endblock %}

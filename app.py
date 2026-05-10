@@ -314,27 +314,35 @@ def upload_actual():
 def compare():
     if not MODEL_PATH.exists():
         flash("Train the model first.", "warning")
-        return redirect(url_for("train"))
+        return render_template("compare.html", records=None, metrics=None)
 
     pred_df, pred_err = get_prediction_df()
     if pred_err:
         flash(pred_err, "danger")
-        return redirect(url_for("upload_predict"))
+        return render_template("compare.html", records=None, metrics=None)
 
     actual_df, actual_err = get_actual_results_df()
     if actual_err:
         flash(actual_err, "danger")
-        return redirect(url_for("upload_actual"))
+        return render_template("compare.html", records=None, metrics=None)
 
-    predicted_results = predict_dataframe(pred_df, str(MODEL_PATH))
-    comparison_df, comparison_metrics = compare_predictions_with_actual(predicted_results, actual_df)
-
-    records = comparison_df.head(200).to_dict(orient="records")
-    return render_template(
-        "compare.html",
-        records=records,
-        metrics=comparison_metrics
-    )
+    try:
+        predicted_results = predict_dataframe(pred_df, str(MODEL_PATH))
+        comparison_df, comparison_metrics = compare_predictions_with_actual(predicted_results, actual_df)
+        records = comparison_df.head(200).to_dict(orient="records")
+        return render_template(
+            "compare.html",
+            records=records,
+            metrics=comparison_metrics
+        )
+    except Exception as e:
+        flash(f"Comparison failed: {str(e)}", "danger")
+        return render_template("compare.html", records=None, metrics=None)
+    
+@app.route("/recheck-comparison", methods=["POST"])
+def recheck_comparison():
+    flash("Comparison metrics refreshed using the current prediction and actual results files.", "success")
+    return redirect(url_for("compare"))
 
 @app.errorhandler(500)
 def internal_error(error):

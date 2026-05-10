@@ -14,6 +14,13 @@
     <button class="btn" type="submit">Upload Training CSV</button>
   </form>
 </div>
+<div class="card" style="margin-top:18px;">
+  <h3>Next Step</h3>
+  <div class="hero-actions">
+    <a class="btn" href="{{ url_for('train') }}">Go to Train & Evaluate</a>
+    <a class="btn btn-secondary" href="{{ url_for('home') }}">Back to Home</a>
+  </div>
+</div>
 
 {% if preview %}
 <div class="table-card">
@@ -31,5 +38,12 @@
     </table>
   </div>
 </div>
+<div class="card" style="margin-top:18px;">
+  <h3>Next Step</h3>
+  <div class="hero-actions">
+    <a class="btn" href="{{ url_for('train') }}">Go to Train & Evaluate</a>
+  </div>
+</div>
+
 {% endif %}
 {% endblock %}

@@ -9,7 +9,14 @@
     <button class="btn" type="submit">Train Models</button>
   </form>
 </div>
-
+<div class="card" style="margin-top:18px;">
+  <h3>Next Step</h3>
+  <div class="hero-actions">
+    <a class="btn" href="{{ url_for('upload_predict') }}">Upload Prediction Dataset</a>
+    <a class="btn btn-secondary" href="{{ url_for('explain') }}">View Explanation</a>
+    <a class="btn btn-secondary" href="{{ url_for('home') }}">Back to Home</a>
+  </div>
+</div>
 {% if metrics %}
 <h2>Best Model Summary</h2>
 <div class="card-grid">
@@ -71,6 +78,13 @@
         {% endfor %}
       </tbody>
     </table>
+  </div>
+</div>
+<div class="card" style="margin-top:18px;">
+  <h3>Next Step</h3>
+  <div class="hero-actions">
+    <a class="btn btn-secondary" href="{{ url_for('upload_predict') }}">Upload Prediction Dataset</a>
+    <a class="btn" href="{{ url_for('explain') }}">View Explanation</a>
   </div>
 </div>
 {% endif %}

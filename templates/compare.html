@@ -3,10 +3,28 @@
 <div class="page-header">
   <div>
     <h1>Prediction vs Actual Results</h1>
-    <p class="small">Comparison of platform predictions against actual unseen test outcomes.</p>
+    <p class="small">
+      This page compares platform predictions on unseen student records with the actual known outcomes.
+    </p>
   </div>
 </div>
 
+<div class="card" style="margin-bottom:18px;">
+  <h3>Workflow</h3>
+  <p class="small">
+    Make sure you have already:
+    1. uploaded the training dataset,
+    2. trained the models,
+    3. uploaded the prediction dataset,
+    4. uploaded the actual results dataset.
+  </p>
+  <div class="hero-actions">
+    <a class="btn btn-secondary" href="{{ url_for('upload_actual') }}">Upload Actual Results</a>
+    <a class="btn btn-secondary" href="{{ url_for('results') }}">View Prediction Results</a>
+  </div>
+</div>
+
+{% if metrics %}
 <div class="card-grid">
   <div class="card stat-card"><span>Total compared</span><strong>{{ metrics.total_compared }}</strong></div>
   <div class="card stat-card"><span>Accuracy</span><strong>{{ metrics.accuracy }}</strong></div>
@@ -19,8 +37,11 @@
   <h3>Confusion Matrix</h3>
   <p>{{ metrics.confusion_matrix }}</p>
 </div>
+{% endif %}
 
-<div class="table-card">
+{% if records %}
+<div class="table-card" style="margin-top:18px;">
+  <h2>Detailed Comparison</h2>
   <div class="table-wrap">
     <table>
       <thead>
@@ -50,4 +71,11 @@
     </table>
   </div>
 </div>
+{% else %}
+<div class="card" style="margin-top:18px;">
+  <p class="small">
+    No comparison results available yet. Upload the actual results file and prediction dataset first.
+  </p>
+</div>
+{% endif %}
 {% endblock %}

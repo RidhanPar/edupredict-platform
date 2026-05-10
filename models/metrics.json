@@ -1,18 +1,18 @@
 {
-  "best_model": "Decision Tree",
-  "accuracy": 0.55,
-  "precision": 0.5,
-  "recall": 0.7778,
-  "f1": 0.6087,
-  "roc_auc": 0.5707,
+  "best_model": "Random Forest",
+  "accuracy": 0.9367,
+  "precision": 0.8889,
+  "recall": 0.9231,
+  "f1": 0.9057,
+  "roc_auc": 0.9949,
   "confusion_matrix": [
     [
-      4,
-      7
+      50,
+      3
     ],
     [
       2,
-      7
+      24
     ]
   ]
 }

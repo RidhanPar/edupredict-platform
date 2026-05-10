@@ -4,3 +4,10 @@
 <p>EduPredict is an academic decision support platform. It uses student learning indicators such as attendance, assignments, quizzes, LMS activity, and previous performance to estimate likely overall course outcome and identify academic risk early enough for intervention.</p>
 <p>The platform compares multiple supervised learning algorithms, selects the best performing model using evaluation metrics, and deploys that model in a web based environment for practical academic use.</p>
 {% endblock %}
+<div class="card" style="margin-top:18px;">
+  <h3>Next Step</h3>
+  <div class="hero-actions">
+    <a class="btn" href="{{ url_for('upload_train') }}">Start Workflow</a>
+    <a class="btn btn-secondary" href="{{ url_for('home') }}">Back to Home</a>
+  </div>
+</div>

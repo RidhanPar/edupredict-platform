@@ -4,26 +4,44 @@
   <h1>EduPredict</h1>
   <p>
     A web based student performance prediction and early warning platform with separate
-    training and prediction workflows for realistic university use.
+    training, prediction, and comparison workflows for realistic university use.
   </p>
   <div class="hero-actions">
-    <a class="btn" href="{{ url_for('upload_train') }}">Upload Training Dataset</a>
-    <a class="btn btn-secondary" href="{{ url_for('upload_predict') }}">Upload Prediction Dataset</a>
+    <a class="btn" href="{{ url_for('upload_train') }}">Start: Upload Training Dataset</a>
+    <a class="btn btn-secondary" href="{{ url_for('about') }}">About the Platform</a>
   </div>
 </div>
 
 <div class="card-grid">
   <div class="card">
-    <h3>Training workflow</h3>
-    <p>Upload a labeled dataset, compare four models, and save the best model.</p>
+    <h3>Step 1</h3>
+    <p>Upload a labeled training dataset.</p>
+    <a class="btn btn-secondary" href="{{ url_for('upload_train') }}">Upload Train Data</a>
   </div>
   <div class="card">
-    <h3>Prediction workflow</h3>
-    <p>Upload new student records and generate predictions using the saved trained model.</p>
+    <h3>Step 2</h3>
+    <p>Train and compare four machine learning models.</p>
+    <a class="btn btn-secondary" href="{{ url_for('train') }}">Train & Evaluate</a>
   </div>
   <div class="card">
-    <h3>Decision support</h3>
-    <p>View risk levels, confidence values, feature importance, and recommendations.</p>
+    <h3>Step 3</h3>
+    <p>Upload a new prediction dataset without target labels.</p>
+    <a class="btn btn-secondary" href="{{ url_for('upload_predict') }}">Upload Predict Data</a>
+  </div>
+  <div class="card">
+    <h3>Step 4</h3>
+    <p>View student level predictions and recommendations.</p>
+    <a class="btn btn-secondary" href="{{ url_for('results') }}">View Results</a>
+  </div>
+  <div class="card">
+    <h3>Step 5</h3>
+    <p>Upload actual results and compare prediction quality.</p>
+    <a class="btn btn-secondary" href="{{ url_for('upload_actual') }}">Upload Actual Results</a>
+  </div>
+  <div class="card">
+    <h3>Step 6</h3>
+    <p>Compare platform predictions with actual unseen outcomes.</p>
+    <a class="btn btn-secondary" href="{{ url_for('compare') }}">Compare Results</a>
   </div>
 </div>
 

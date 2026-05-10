@@ -31,5 +31,12 @@
   <h3>Interpretation</h3>
   <p>The ranking above shows which input variables contribute most strongly to prediction behavior. This supports transparency, interpretability, and academic decision making.</p>
 </div>
+<div class="card" style="margin-top:18px;">
+  <h3>Next Step</h3>
+  <div class="hero-actions">
+    <a class="btn btn-secondary" href="{{ url_for('results') }}">Back to Results</a>
+    <a class="btn" href="{{ url_for('compare') }}">Compare Results</a>
+  </div>
+</div>
 {% endif %}
 {% endblock %}
