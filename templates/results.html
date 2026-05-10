@@ -32,6 +32,13 @@
   </form>
 </div>
 
+<div class="hero-actions" style="margin-top:12px;">
+  <a class="btn"
+     href="{{ url_for('download_results', name=name_query, risk=risk_filter, prediction=prediction_filter) }}">
+    Download Results CSV
+  </a>
+</div>
+
 <div class="card" style="margin-top:18px;">
   <h3>Next Step</h3>
   <div class="hero-actions">

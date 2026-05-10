@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import pandas as pd
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, Response
 
 from utils.evaluation import load_importances, load_metrics, load_model_comparison
 from utils.predict import predict_dataframe
@@ -253,6 +253,59 @@ def results():
         prediction_filter=prediction_filter
     )
 
+@app.route("/download-results")
+def download_results():
+    if not MODEL_PATH.exists():
+        flash("Train the model first.", "warning")
+        return redirect(url_for("train"))
+
+    df, err = get_prediction_df()
+    if err:
+        flash(err, "danger")
+        return redirect(url_for("upload_predict"))
+
+    try:
+        res = predict_dataframe(df, str(MODEL_PATH))
+    except Exception as e:
+        flash(f"Prediction failed: {str(e)}", "danger")
+        return redirect(url_for("upload_predict"))
+
+    name_query = request.args.get("name", "").strip().lower()
+    risk_filter = request.args.get("risk", "").strip()
+    prediction_filter = request.args.get("prediction", "").strip()
+
+    filtered = res.copy()
+
+    if name_query:
+        filtered = filtered[
+            filtered["student_name"].astype(str).str.lower().str.contains(name_query)
+            | filtered["student_id"].astype(str).str.lower().str.contains(name_query)
+        ]
+
+    if risk_filter:
+        filtered = filtered[filtered["risk_level"] == risk_filter]
+
+    if prediction_filter:
+        filtered = filtered[filtered["prediction"] == prediction_filter]
+
+    export_cols = [
+        "student_id",
+        "student_name",
+        "prediction",
+        "fail_probability",
+        "confidence",
+        "risk_level",
+        "recommendation"
+    ]
+
+    available_cols = [col for col in export_cols if col in filtered.columns]
+    csv_data = filtered[available_cols].to_csv(index=False)
+
+    return Response(
+        csv_data,
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=prediction_results.csv"}
+    )
 
 @app.route("/explain")
 def explain():
