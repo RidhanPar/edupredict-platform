@@ -3,8 +3,8 @@
 <div class="hero">
   <h1>EduPredict</h1>
   <p>
-    A web based student performance prediction and early warning platform that supports both
-    model training and prediction on new student datasets.
+    A web based student performance prediction and early warning platform with separate
+    training and prediction workflows for realistic university use.
   </p>
   <div class="hero-actions">
     <a class="btn" href="{{ url_for('upload_train') }}">Upload Training Dataset</a>
@@ -15,15 +15,15 @@
 <div class="card-grid">
   <div class="card">
     <h3>Training workflow</h3>
-    <p>Upload a labeled educational dataset, compare four supervised learning models, and save the best one.</p>
+    <p>Upload a labeled dataset, compare four models, and save the best model.</p>
   </div>
   <div class="card">
     <h3>Prediction workflow</h3>
-    <p>Upload a new student dataset without target labels and generate predictions using the saved best model.</p>
+    <p>Upload new student records and generate predictions using the saved trained model.</p>
   </div>
   <div class="card">
-    <h3>Users</h3>
-    <p>Lecturers, advisors, coordinators, and academic administrators.</p>
+    <h3>Decision support</h3>
+    <p>View risk levels, confidence values, feature importance, and recommendations.</p>
   </div>
 </div>
 
@@ -35,7 +35,5 @@
   <div class="card stat-card"><span>F1 score</span><strong>{{ metrics.f1 }}</strong></div>
   <div class="card stat-card"><span>ROC AUC</span><strong>{{ metrics.roc_auc }}</strong></div>
 </div>
-{% else %}
-<p class="small" style="margin-top:20px;">No trained model yet. Upload a training dataset and run evaluation.</p>
 {% endif %}
 {% endblock %}

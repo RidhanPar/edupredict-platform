@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-
 import pandas as pd
 from flask import Flask, render_template, request, redirect, url_for, flash
 
@@ -20,27 +19,47 @@ TRAIN_UPLOAD_PATH = RAW_DIR / "training_dataset.csv"
 PREDICT_UPLOAD_PATH = RAW_DIR / "prediction_dataset.csv"
 
 app = Flask(__name__)
-app.secret_key = "edupredict-secret"
+app.secret_key = "edupredict-secret-key"
+
+
+def read_csv_flexible(path: Path) -> pd.DataFrame:
+    """
+    Reads both comma-separated and semicolon-separated CSV files.
+    """
+    try:
+        df = pd.read_csv(path)
+        if len(df.columns) == 1:
+            df = pd.read_csv(path, sep=";")
+        return df
+    except Exception:
+        df = pd.read_csv(path, sep=";")
+        return df
 
 
 def get_training_df(require_target: bool = True):
     if not TRAIN_UPLOAD_PATH.exists():
         return None, "No training dataset uploaded yet."
-    df = pd.read_csv(TRAIN_UPLOAD_PATH)
-    ok, missing = validate_columns(df, require_target=require_target)
-    if not ok:
-        return None, f"Missing required columns in training dataset: {', '.join(missing)}"
-    return df, None
+    try:
+        df = read_csv_flexible(TRAIN_UPLOAD_PATH)
+        ok, missing = validate_columns(df, require_target=require_target)
+        if not ok:
+            return None, f"Missing required columns in training dataset: {', '.join(missing)}"
+        return df, None
+    except Exception as e:
+        return None, f"Error reading training dataset: {str(e)}"
 
 
 def get_prediction_df():
     if not PREDICT_UPLOAD_PATH.exists():
         return None, "No prediction dataset uploaded yet."
-    df = pd.read_csv(PREDICT_UPLOAD_PATH)
-    ok, missing = validate_columns(df, require_target=False)
-    if not ok:
-        return None, f"Missing required columns in prediction dataset: {', '.join(missing)}"
-    return df, None
+    try:
+        df = read_csv_flexible(PREDICT_UPLOAD_PATH)
+        ok, missing = validate_columns(df, require_target=False)
+        if not ok:
+            return None, f"Missing required columns in prediction dataset: {', '.join(missing)}"
+        return df, None
+    except Exception as e:
+        return None, f"Error reading prediction dataset: {str(e)}"
 
 
 @app.route("/")
@@ -56,20 +75,32 @@ def upload_train():
     columns = None
 
     if request.method == "POST":
-        file = request.files.get("file")
-        if not file or not file.filename.endswith(".csv"):
-            flash("Please upload a valid training CSV file.", "danger")
+        try:
+            file = request.files.get("file")
+            if not file or not file.filename:
+                flash("Please select a training CSV file.", "danger")
+                return redirect(url_for("upload_train"))
+
+            if not file.filename.lower().endswith(".csv"):
+                flash("Only CSV files are allowed for training upload.", "danger")
+                return redirect(url_for("upload_train"))
+
+            RAW_DIR.mkdir(parents=True, exist_ok=True)
+            file.save(TRAIN_UPLOAD_PATH)
+            flash("Training dataset uploaded successfully.", "success")
             return redirect(url_for("upload_train"))
 
-        RAW_DIR.mkdir(parents=True, exist_ok=True)
-        file.save(TRAIN_UPLOAD_PATH)
-        flash("Training dataset uploaded successfully.", "success")
-        return redirect(url_for("upload_train"))
+        except Exception as e:
+            flash(f"Upload failed: {str(e)}", "danger")
+            return redirect(url_for("upload_train"))
 
     if TRAIN_UPLOAD_PATH.exists():
-        df = pd.read_csv(TRAIN_UPLOAD_PATH)
-        preview = df.head(10).to_dict(orient="records")
-        columns = list(df.columns)
+        try:
+            df = read_csv_flexible(TRAIN_UPLOAD_PATH)
+            preview = df.head(10).to_dict(orient="records")
+            columns = list(df.columns)
+        except Exception as e:
+            flash(f"Could not preview training dataset: {str(e)}", "danger")
 
     required = DISPLAY_COLUMNS + FEATURE_COLUMNS + [TARGET_COLUMN]
     return render_template(
@@ -86,20 +117,32 @@ def upload_predict():
     columns = None
 
     if request.method == "POST":
-        file = request.files.get("file")
-        if not file or not file.filename.endswith(".csv"):
-            flash("Please upload a valid prediction CSV file.", "danger")
+        try:
+            file = request.files.get("file")
+            if not file or not file.filename:
+                flash("Please select a prediction CSV file.", "danger")
+                return redirect(url_for("upload_predict"))
+
+            if not file.filename.lower().endswith(".csv"):
+                flash("Only CSV files are allowed for prediction upload.", "danger")
+                return redirect(url_for("upload_predict"))
+
+            RAW_DIR.mkdir(parents=True, exist_ok=True)
+            file.save(PREDICT_UPLOAD_PATH)
+            flash("Prediction dataset uploaded successfully.", "success")
             return redirect(url_for("upload_predict"))
 
-        RAW_DIR.mkdir(parents=True, exist_ok=True)
-        file.save(PREDICT_UPLOAD_PATH)
-        flash("Prediction dataset uploaded successfully.", "success")
-        return redirect(url_for("upload_predict"))
+        except Exception as e:
+            flash(f"Upload failed: {str(e)}", "danger")
+            return redirect(url_for("upload_predict"))
 
     if PREDICT_UPLOAD_PATH.exists():
-        df = pd.read_csv(PREDICT_UPLOAD_PATH)
-        preview = df.head(10).to_dict(orient="records")
-        columns = list(df.columns)
+        try:
+            df = read_csv_flexible(PREDICT_UPLOAD_PATH)
+            preview = df.head(10).to_dict(orient="records")
+            columns = list(df.columns)
+        except Exception as e:
+            flash(f"Could not preview prediction dataset: {str(e)}", "danger")
 
     required = DISPLAY_COLUMNS + FEATURE_COLUMNS
     return render_template(
@@ -122,11 +165,15 @@ def train():
             flash(err, "danger")
             return redirect(url_for("upload_train"))
 
-        artifacts = train_and_select_best(df, str(MODELS_DIR))
-        metrics = {"best_model": artifacts.model_name, **artifacts.metrics}
-        importances = artifacts.feature_importances
-        comparison = artifacts.model_comparison
-        flash(f"Training complete. Best model: {artifacts.model_name}", "success")
+        try:
+            artifacts = train_and_select_best(df, str(MODELS_DIR))
+            metrics = {"best_model": artifacts.model_name, **artifacts.metrics}
+            importances = artifacts.feature_importances
+            comparison = artifacts.model_comparison
+            flash(f"Training complete. Best model: {artifacts.model_name}", "success")
+        except Exception as e:
+            flash(f"Training failed: {str(e)}", "danger")
+            return redirect(url_for("train"))
 
     return render_template(
         "train.html",
@@ -147,7 +194,11 @@ def results():
         flash(err, "danger")
         return redirect(url_for("upload_predict"))
 
-    res = predict_dataframe(df, str(MODEL_PATH))
+    try:
+        res = predict_dataframe(df, str(MODEL_PATH))
+    except Exception as e:
+        flash(f"Prediction failed: {str(e)}", "danger")
+        return redirect(url_for("upload_predict"))
 
     name_query = request.args.get("name", "").strip().lower()
     risk_filter = request.args.get("risk", "").strip()
@@ -202,6 +253,11 @@ def explain():
 @app.route("/about")
 def about():
     return render_template("about.html")
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    return render_template("error.html", message="An internal server error occurred. Please check your uploaded dataset and try again."), 500
 
 
 if __name__ == "__main__":

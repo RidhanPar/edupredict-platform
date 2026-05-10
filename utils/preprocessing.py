@@ -5,6 +5,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 
 DISPLAY_COLUMNS = ["student_id", "student_name"]
+
 FEATURE_COLUMNS = [
     "attendance",
     "assignment_score",
@@ -14,6 +15,7 @@ FEATURE_COLUMNS = [
     "previous_grade",
     "missed_submissions",
 ]
+
 TARGET_COLUMN = "target"
 
 
