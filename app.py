@@ -8,6 +8,7 @@ from utils.evaluation import load_importances, load_metrics, load_model_comparis
 from utils.predict import predict_dataframe
 from utils.preprocessing import validate_columns, FEATURE_COLUMNS, TARGET_COLUMN, DISPLAY_COLUMNS
 from utils.train_model import train_and_select_best
+from utils.compare_results import compare_predictions_with_actual
 
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
@@ -17,6 +18,7 @@ MODEL_PATH = MODELS_DIR / "best_model.pkl"
 
 TRAIN_UPLOAD_PATH = RAW_DIR / "training_dataset.csv"
 PREDICT_UPLOAD_PATH = RAW_DIR / "prediction_dataset.csv"
+ACTUAL_RESULTS_PATH = RAW_DIR / "actual_results.csv"
 
 app = Flask(__name__)
 app.secret_key = "edupredict-secret-key"
@@ -60,6 +62,19 @@ def get_prediction_df():
         return df, None
     except Exception as e:
         return None, f"Error reading prediction dataset: {str(e)}"
+    
+def get_actual_results_df():
+    if not ACTUAL_RESULTS_PATH.exists():
+        return None, "No actual results dataset uploaded yet."
+    try:
+        df = read_csv_flexible(ACTUAL_RESULTS_PATH)
+        required_cols = ["student_id", "target"]
+        missing = [c for c in required_cols if c not in df.columns]
+        if missing:
+            return None, f"Missing required columns in actual results dataset: {', '.join(missing)}"
+        return df, None
+    except Exception as e:
+        return None, f"Error reading actual results dataset: {str(e)}"
 
 
 @app.route("/")
@@ -254,6 +269,72 @@ def explain():
 def about():
     return render_template("about.html")
 
+@app.route("/upload-actual", methods=["GET", "POST"])
+def upload_actual():
+    preview = None
+    columns = None
+
+    if request.method == "POST":
+        try:
+            file = request.files.get("file")
+            if not file or not file.filename:
+                flash("Please select an actual results CSV file.", "danger")
+                return redirect(url_for("upload_actual"))
+
+            if not file.filename.lower().endswith(".csv"):
+                flash("Only CSV files are allowed for actual results upload.", "danger")
+                return redirect(url_for("upload_actual"))
+
+            RAW_DIR.mkdir(parents=True, exist_ok=True)
+            file.save(ACTUAL_RESULTS_PATH)
+            flash("Actual results dataset uploaded successfully.", "success")
+            return redirect(url_for("upload_actual"))
+
+        except Exception as e:
+            flash(f"Upload failed: {str(e)}", "danger")
+            return redirect(url_for("upload_actual"))
+
+    if ACTUAL_RESULTS_PATH.exists():
+        try:
+            df = read_csv_flexible(ACTUAL_RESULTS_PATH)
+            preview = df.head(10).to_dict(orient="records")
+            columns = list(df.columns)
+        except Exception as e:
+            flash(f"Could not preview actual results dataset: {str(e)}", "danger")
+
+    required = ["student_id", "target"]
+    return render_template(
+        "upload_actual.html",
+        preview=preview,
+        columns=columns,
+        required=required
+    )
+
+@app.route("/compare")
+def compare():
+    if not MODEL_PATH.exists():
+        flash("Train the model first.", "warning")
+        return redirect(url_for("train"))
+
+    pred_df, pred_err = get_prediction_df()
+    if pred_err:
+        flash(pred_err, "danger")
+        return redirect(url_for("upload_predict"))
+
+    actual_df, actual_err = get_actual_results_df()
+    if actual_err:
+        flash(actual_err, "danger")
+        return redirect(url_for("upload_actual"))
+
+    predicted_results = predict_dataframe(pred_df, str(MODEL_PATH))
+    comparison_df, comparison_metrics = compare_predictions_with_actual(predicted_results, actual_df)
+
+    records = comparison_df.head(200).to_dict(orient="records")
+    return render_template(
+        "compare.html",
+        records=records,
+        metrics=comparison_metrics
+    )
 
 @app.errorhandler(500)
 def internal_error(error):
