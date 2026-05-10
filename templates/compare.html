@@ -12,15 +12,18 @@
 <div class="card" style="margin-bottom:18px;">
   <h3>Workflow</h3>
   <p class="small">
-    Make sure you have already:
-    1. uploaded the training dataset,
-    2. trained the models,
-    3. uploaded the prediction dataset,
-    4. uploaded the actual results dataset.
+    Make sure you have already completed:
+    1. Upload Training Dataset
+    2. Train & Evaluate
+    3. Upload Prediction Dataset
+    4. Upload Actual Results Dataset
   </p>
   <div class="hero-actions">
     <a class="btn btn-secondary" href="{{ url_for('upload_actual') }}">Upload Actual Results</a>
     <a class="btn btn-secondary" href="{{ url_for('results') }}">View Prediction Results</a>
+    <form method="post" action="{{ url_for('recheck_comparison') }}" style="display:inline;">
+      <button class="btn" type="submit">Re-evaluate Current Comparison</button>
+    </form>
   </div>
 </div>
 
@@ -31,6 +34,7 @@
   <div class="card stat-card"><span>Precision</span><strong>{{ metrics.precision }}</strong></div>
   <div class="card stat-card"><span>Recall</span><strong>{{ metrics.recall }}</strong></div>
   <div class="card stat-card"><span>F1 Score</span><strong>{{ metrics.f1 }}</strong></div>
+  <div class="card stat-card"><span>Overall Score</span><strong>{{ metrics.overall_score }}%</strong></div>
 </div>
 
 <div class="card" style="margin-top:18px;">
@@ -69,6 +73,14 @@
       {% endfor %}
       </tbody>
     </table>
+  </div>
+</div>
+
+<div class="card" style="margin-top:18px;">
+  <h3>Next Step</h3>
+  <div class="hero-actions">
+    <a class="btn btn-secondary" href="{{ url_for('explain') }}">View Explanation</a>
+    <a class="btn" href="{{ url_for('home') }}">Back to Home</a>
   </div>
 </div>
 {% else %}

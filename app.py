@@ -337,8 +337,8 @@ def compare():
         )
     except Exception as e:
         flash(f"Comparison failed: {str(e)}", "danger")
-        return render_template("compare.html", records=None, metrics=None)
-    
+        return render_template("compare.html", records=None, metrics=None)   
+     
 @app.route("/recheck-comparison", methods=["POST"])
 def recheck_comparison():
     flash("Comparison metrics refreshed using the current prediction and actual results files.", "success")
