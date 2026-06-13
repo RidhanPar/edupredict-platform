@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import os
+import secrets
 from pathlib import Path
+
 import pandas as pd
 from flask import Flask, render_template, request, redirect, url_for, flash, Response
 
@@ -21,7 +24,8 @@ PREDICT_UPLOAD_PATH = RAW_DIR / "prediction_dataset.csv"
 ACTUAL_RESULTS_PATH = RAW_DIR / "actual_results.csv"
 
 app = Flask(__name__)
-app.secret_key = "edupredict-secret-key"
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", secrets.token_hex(32))
+app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
 
 
 def read_csv_flexible(path: Path) -> pd.DataFrame:
@@ -33,7 +37,7 @@ def read_csv_flexible(path: Path) -> pd.DataFrame:
         if len(df.columns) == 1:
             df = pd.read_csv(path, sep=";")
         return df
-    except Exception:
+    except (pd.errors.ParserError, UnicodeDecodeError):
         df = pd.read_csv(path, sep=";")
         return df
 
@@ -403,4 +407,4 @@ def internal_error(error):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=os.environ.get("FLASK_DEBUG", "").lower() == "true")
