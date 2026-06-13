@@ -4,6 +4,8 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 
 def compare_predictions_with_actual(pred_df: pd.DataFrame, actual_df: pd.DataFrame):
     merged = pred_df.merge(actual_df, on="student_id", how="inner")
+    if merged.empty:
+        raise ValueError("Prediction and actual-result files have no matching student IDs.")
 
     merged["predicted_target"] = merged["prediction"].map({"Pass": 0, "Fail": 1})
 
